@@ -37,17 +37,8 @@ env/
 .DS_Store
 Thumbs.db
 
-# Project specific
+# Project specific - outputs directory
 outputs/
-*.png
-*.jpg
-*.jpeg
-*.bmp
-*.tif
-*.tiff
-
-# Keep example outputs structure but ignore content
-!outputs/.gitkeep
 
 # Logs
 *.log

@@ -1,0 +1,194 @@
+function [IMG] = Key_of_Shengchengtupian_Jiami(img11_RGB,img22_RGB,k)
+
+
+[m,n]=size(img11_RGB(:,:,1));
+size1=m;
+
+
+permutations = perms(1:6); % 生成所有排列顺序
+numbers = 1:720; % 生成数字范围
+selected_permutations = zeros(720, 6); % 用于存储选择的排列顺序
+
+
+for i = 1:720
+    index = numbers(i);
+    selected_permutations(i, :) = permutations(index, :);
+end
+
+
+%六张图的六个参数
+L1 = 6;
+N0 = 2000;
+q = zeros(1, L1);
+xn=zeros(1, L1);
+
+% x1 =-0.8;
+% r1=0.9;
+% for i = 1:N0 + L1
+%     x1 = cos(r1 / asin(x1));
+%     if i > N0
+%         xn(i - N0) = x1;
+%         q(i - N0) = mod(floor(x1*10^15), m*m)+1;
+%     end
+% end
+% 
+% 
+% %扫描到六张图的每一个点都会进行重新排序
+% L2 = size1*size1;
+% m=zeros(1, L2);
+% N1 = 1000+k;
+% x2=0.8;
+% r2=1.2;
+% for i = 1:N1 + L2
+%     x2 = cos(r2 / asin(x2));
+%     if i > N1
+%         m(i - N1) = mod(floor(x2*10^15), 719)+1;
+%     end
+% end
+
+
+x1 =-0.8+k^10*(-15);y1=0.8;
+r1=0.9;
+for i = 1:N0 + L1
+    x1 = r1*cos(exp(x1)^2 + y1);
+    y1= 25*cos(y1*(1-x1*x1));
+    if i > N0
+        xn(i - N0) = x1;
+        q(i - N0) = mod(floor(real(x1)*10^15), m*m)+1;
+    end
+end
+
+
+%扫描到六张图的每一个点都会进行重新排序
+L2 = size1*size1;
+m=zeros(1, L2);
+N1 = 1000;
+x2=0.8;
+r2=1.2;
+for i = 1:N1 + L2
+    x2 = cos(r2 / asin(x2));
+    if i > N1
+        m(i - N1) = mod(floor(x2*10^15), 719)+1;
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+%两轮的扫描置乱
+
+%第一次置乱的状况
+
+P11=New_saomiao_suijiQidian(q(1),img11_RGB (:,:,1),size1);
+P22=New_saomiao_suijiQidian(q(2),img11_RGB (:,:,2),size1);
+P33=New_saomiao_suijiQidian(q(3),img11_RGB (:,:,3),size1);
+P44=New_saomiao_suijiQidian(q(4),img22_RGB (:,:,1),size1);
+P55=New_saomiao_suijiQidian(q(5),img22_RGB (:,:,2),size1);
+P66=New_saomiao_suijiQidian(q(6),img22_RGB (:,:,3),size1);
+
+
+
+%汇总成6张512*512
+Line_a=zeros(1,size1*size1*6);
+for i=1:size1*size1
+    
+    Line_a(6*(i-1)+selected_permutations(m(i),1))=P11(i);
+    Line_a(6*(i-1)+selected_permutations(m(i),2))=P22(i);
+    Line_a(6*(i-1)+selected_permutations(m(i),3))=P33(i);
+    Line_a(6*(i-1)+selected_permutations(m(i),4))=P44(i);
+    Line_a(6*(i-1)+selected_permutations(m(i),5))=P55(i);
+    Line_a(6*(i-1)+selected_permutations(m(i),6))=P66(i);
+
+end
+
+
+
+%裁剪回六张图
+Line_img=reshape(Line_a,size1,size1*6);
+
+Img_1_6=Line_img(:,1:size1);
+Img_2_6=Line_img(:,size1+1:2*size1);
+Img_3_6=Line_img(:,2*size1+1:3*size1);
+Img_4_6=Line_img(:,3*size1+1:4*size1);
+Img_5_6=Line_img(:,4*size1+1:5*size1);
+Img_6_6=Line_img(:,5*size1+1:6*size1);
+
+
+
+
+%第二次置乱的状况
+
+%扫描六个图像
+P1_1_2=New_saomiao_suijiQidian(q(1),Img_1_6,size1);
+P2_1_2=New_saomiao_suijiQidian(q(2),Img_2_6,size1);
+P3_1_2=New_saomiao_suijiQidian(q(3),Img_3_6,size1);
+P4_1_2=New_saomiao_suijiQidian(q(4),Img_4_6,size1);
+P5_1_2=New_saomiao_suijiQidian(q(5),Img_5_6,size1);
+P6_1_2=New_saomiao_suijiQidian(q(6),Img_6_6,size1);
+
+
+%汇总成6张512*512
+Line=zeros(1,size1*size1*6);
+for i=1:size1*size1
+
+    Line(6*(i-1)+selected_permutations(m(i),1))=P1_1_2(i);
+    Line(6*(i-1)+selected_permutations(m(i),2))=P2_1_2(i);
+    Line(6*(i-1)+selected_permutations(m(i),3))=P3_1_2(i);
+    Line(6*(i-1)+selected_permutations(m(i),4))=P4_1_2(i);
+    Line(6*(i-1)+selected_permutations(m(i),5))=P5_1_2(i);
+    Line(6*(i-1)+selected_permutations(m(i),6))=P6_1_2(i);
+
+
+end
+
+
+%裁剪回六张图
+Line_img_1=reshape(Line,size1,size1*6);  
+Img_1=Line_img_1(:,1:size1);
+Img_2=Line_img_1(:,size1+1:2*size1);
+Img_3=Line_img_1(:,2*size1+1:3*size1);
+Img_4=Line_img_1(:,3*size1+1:4*size1);
+Img_5=Line_img_1(:,4*size1+1:5*size1);
+Img_6=Line_img_1(:,5*size1+1:6*size1);
+
+
+ %Img_1=Hill(Img_1);
+
+
+
+ 
+%扩散
+IMG=cat(6,Img_1,Img_2,Img_3,Img_4,Img_5,Img_6);
+%IMG= Diffusion(IMG);
+
+
+IMG1_before=horzcat(Img_1,Img_2,Img_3,Img_4,Img_5,Img_6);
+
+IMG1_after=Key_of_Function_anuode(IMG1_before,k);
+
+
+IMG(:,:,1)=IMG1_after(:,1:size1);
+IMG(:,:,2)=IMG1_after(:,size1+1:2*size1);
+IMG(:,:,3)=IMG1_after(:,size1*2+1:3*size1);
+IMG(:,:,4)=IMG1_after(:,size1*3+1:4*size1);
+IMG(:,:,5)=IMG1_after(:,size1*4+1:5*size1);
+IMG(:,:,6)=IMG1_after(:,size1*5+1:6*size1);
+
+
+
+IMG=uint8(IMG);
+
+
+
+
+
+end

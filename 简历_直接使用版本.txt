@@ -1,0 +1,108 @@
+================================================================================
+简历项目描述 - 可直接复制使用
+================================================================================
+
+【版本1 - 简洁版】适合简历正文，3-5行
+--------------------------------------------------------------------------------
+
+图像加密算法测评系统 | Python, PySide6, NumPy, Numba
+2024.XX - 2024.XX
+
+• 设计并实现基于插件化架构的图像加密算法测评平台，支持多算法自动加载和批量测试
+• 实现 DPPAD-IE 混沌加密算法，采用双向扩散机制，安全性指标优秀（NPCR 99.86%, UACI 33.47%）
+• 通过 Numba JIT 编译、位运算等优化技术，算法性能提升 2 倍（512×512 图像加密从 149ms 降至 84ms）
+• 开发完整评估体系（信息熵、相关性、NPCR/UACI 等 10+ 项指标）和可视化分析功能
+• 使用 PySide6 构建图形界面，实现多线程批量处理和实时进度显示
+
+技术栈: Python, PySide6, NumPy, Numba, Matplotlib, OpenCV
+
+
+【版本2 - 突出技术版】适合技术岗位，强调技术能力
+--------------------------------------------------------------------------------
+
+图像加密算法测评系统 | Python 全栈开发
+2024.XX - 2024.XX
+
+• 架构设计：采用 MVC 模式和插件化架构，实现算法热插拔，支持动态扩展
+• 算法实现：研究并实现 DPPAD-IE 混沌加密算法，安全性指标达到国际标准（NPCR>99.6%, UACI≈33.4%）
+• 性能优化：使用 Numba JIT 编译、位运算、内存优化等技术，性能提升 2 倍，吞吐量达 3 MB/s
+• 并发处理：基于 QThread 实现多线程批量处理，通过 Signal/Slot 机制实现异步通信
+• 数据分析：实现 10+ 项评估指标（信息熵、相关性、NPCR/UACI 等），开发可视化模块自动生成分析图表
+• 界面开发：使用 PySide6 构建现代化 GUI，支持实时进度、批量处理和结果导出
+
+技术栈: Python, PySide6, NumPy, Numba, Matplotlib, OpenCV, 多线程, 性能优化
+
+
+【版本3 - 突出成果版】适合强调项目成果
+--------------------------------------------------------------------------------
+
+图像加密算法测评系统 | 核心开发者
+2024.XX - 2024.XX
+
+项目成果：
+• 成功实现 DPPAD-IE 混沌加密算法，安全性指标达到优秀水平（NPCR 99.86%, UACI 33.47%）
+• 通过多项优化技术，算法性能提升 2 倍，512×512 图像加密时间从 149ms 降至 84ms
+• 开发完整的测评系统，支持 4 种加密算法的自动加载和批量测试
+• 实现 10+ 项评估指标和可视化分析功能，生成专业的测试报告
+
+技术实现：
+• 采用插件化架构设计，使用抽象基类和动态加载实现算法热插拔
+• 使用 Numba JIT 编译、位运算优化、内存优化等技术提升性能
+• 基于 PySide6 开发图形界面，使用多线程实现批量处理
+• 使用 Matplotlib 实现数据可视化，自动生成直方图和散点图
+
+技术栈: Python, PySide6, NumPy, Numba, Matplotlib, OpenCV
+
+
+【版本4 - 超简洁版】适合空间有限的简历
+--------------------------------------------------------------------------------
+
+图像加密算法测评系统 | Python
+• 实现 DPPAD-IE 混沌加密算法，安全性指标优秀（NPCR 99.86%）
+• 通过 Numba JIT 编译等优化技术，性能提升 2 倍
+• 开发插件化测评平台，支持多算法批量测试和可视化分析
+技术: Python, PySide6, NumPy, Numba, Matplotlib
+
+
+【版本5 - 英文版】适合英文简历
+--------------------------------------------------------------------------------
+
+Image Encryption Algorithm Evaluation System | Python, PySide6, NumPy
+2024.XX - 2024.XX
+
+• Designed and implemented a plugin-based image encryption evaluation platform with automatic algorithm loading and batch testing capabilities
+• Implemented DPPAD-IE chaotic encryption algorithm with bidirectional diffusion mechanism, achieving excellent security metrics (NPCR 99.86%, UACI 33.47%)
+• Optimized algorithm performance by 2x using Numba JIT compilation, bitwise operations, and memory optimization (512×512 image encryption reduced from 149ms to 84ms)
+• Developed comprehensive evaluation system with 10+ metrics (entropy, correlation, NPCR/UACI) and visualization features
+• Built GUI using PySide6 with multi-threading for batch processing and real-time progress updates
+
+Tech Stack: Python, PySide6, NumPy, Numba, Matplotlib, OpenCV
+
+
+================================================================================
+使用建议
+================================================================================
+
+1. 根据简历空间选择版本：
+   - 空间充足 → 版本2 或 版本3
+   - 空间有限 → 版本1 或 版本4
+   - 英文简历 → 版本5
+
+2. 根据岗位类型调整：
+   - 算法岗 → 强调算法实现和优化
+   - 开发岗 → 强调系统架构和工程能力
+   - 数据岗 → 强调数据分析和可视化
+
+3. 关键数字要记住：
+   - 性能提升: 2 倍 / 44-51%
+   - 加密时间: 84ms (512×512)
+   - 安全指标: NPCR 99.86%, UACI 33.47%
+   - 算法数量: 4 个
+   - 评估指标: 10+ 项
+
+4. 技术关键词（提高 ATS 通过率）：
+   Python, PySide6, NumPy, Numba, Matplotlib, OpenCV, 
+   多线程, 性能优化, 插件化架构, JIT 编译, 
+   算法实现, 数据可视化, GUI 开发, 系统设计
+
+================================================================================

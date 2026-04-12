@@ -6,16 +6,19 @@ import numpy as np
 import cv2
 
 
-def imread_chinese(filepath: str, flags=cv2.IMREAD_COLOR) -> np.ndarray:
+def imread_chinese(filepath: str, flags=cv2.IMREAD_UNCHANGED) -> np.ndarray:
     """
     读取图像（支持中文路径）
     
     Args:
         filepath: 图像文件路径
-        flags: 读取标志（cv2.IMREAD_COLOR, cv2.IMREAD_GRAYSCALE等）
+        flags: 读取标志（默认IMREAD_UNCHANGED保持原始格式）
         
     Returns:
         图像数组，如果失败返回 None
+        - 灰度图: (H, W)
+        - 彩色图: (H, W, 3)
+        - 带透明通道: (H, W, 4)
     """
     try:
         # 读取文件为字节流

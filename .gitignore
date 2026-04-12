@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.nbi
+*.nbc
+*.egg-info/
+dist/
+build/
+
+# MATLAB
+*.asv
+
+# Results
+results/
+test_results/
+
+# IDE
+.vscode/settings.json
+.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Temp
+新建文件夹/
+init.pyui/

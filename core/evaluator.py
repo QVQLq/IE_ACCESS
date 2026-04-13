@@ -337,6 +337,18 @@ class Evaluator:
                 modified_key = ''.join(key_list)
             else:
                 modified_key = key
+        elif isinstance(key, dict):
+            # 字典密钥：修改第一个数值字段的 bit
+            modified_key = key.copy()
+            for k in modified_key:
+                if isinstance(modified_key[k], (int, float)):
+                    if isinstance(modified_key[k], int):
+                        modified_key[k] = modified_key[k] ^ (1 << bit_position)
+                    else:
+                        key_bits = int(modified_key[k] * 1e10)
+                        modified_bits = key_bits ^ (1 << bit_position)
+                        modified_key[k] = modified_bits / 1e10
+                    break
         else:
             # 其他类型：尝试转换为整数处理
             try:
@@ -426,6 +438,79 @@ class Evaluator:
         }
 
     
+    @staticmethod
+    def test_differential_attack(encrypt_func: Callable,
+                                 image: np.ndarray,
+                                 key: Any) -> Dict[str, Any]:
+        """
+        综合差分攻击测试，同时执行明文敏感性测试和密钥敏感性测试。
+
+        Args:
+            encrypt_func: 加密函数 func(image, key) -> encrypted
+            image: 原始图像
+            key: 原始密钥
+
+        Returns:
+            包含两类敏感性测试结果的字典
+        """
+        plaintext_result = Evaluator.test_plaintext_sensitivity(
+            encrypt_func, image, key, pixel_position=(0, 0)
+        )
+
+        key_result = Evaluator.test_key_sensitivity(
+            encrypt_func, image, key, bit_position=0
+        )
+
+        return {
+            'plaintext_sensitivity': {
+                'pixel_position': plaintext_result['pixel_position'],
+                'original_value': plaintext_result['original_value'],
+                'modified_value': plaintext_result['modified_value'],
+                'npcr': plaintext_result['npcr'],
+                'uaci': plaintext_result['uaci'],
+                'is_sensitive': plaintext_result['is_sensitive']
+            },
+            'key_sensitivity': {
+                'original_key': key_result['original_key'],
+                'modified_key': key_result['modified_key'],
+                'modification_description': Evaluator._build_key_mod_description(
+                    key, key_result['modified_key']
+                ),
+                'npcr': key_result['npcr'],
+                'uaci': key_result['uaci'],
+                'is_sensitive': key_result['is_sensitive']
+            }
+        }
+
+    @staticmethod
+    def _build_key_mod_description(original_key: Any, modified_key: Any) -> str:
+        """
+        根据密钥类型生成易读的变化描述。
+
+        Args:
+            original_key: 原始密钥
+            modified_key: 修改后的密钥
+
+        Returns:
+            描述密钥如何变化的字符串
+        """
+        if isinstance(original_key, int):
+            diff = modified_key - original_key
+            return f"整数密钥 ±{diff}"
+        elif isinstance(original_key, float):
+            diff = modified_key - original_key
+            return f"浮点密钥 ±{diff:.10g}"
+        elif isinstance(original_key, str):
+            return f"字符串密钥第1个字符 +1"
+        elif isinstance(original_key, dict):
+            changed_keys = []
+            for k in original_key:
+                if k in modified_key and original_key[k] != modified_key[k]:
+                    changed_keys.append(k)
+            return f"字典密钥 {changed_keys[0] if changed_keys else '?'} 发生变化"
+        else:
+            return f"{type(original_key).__name__} 密钥发生变化"
+
     # ==================== 性能指标 ====================
     
     @staticmethod

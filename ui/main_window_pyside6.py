@@ -6,7 +6,8 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QPushButton, QLabel, QComboBox, QLineEdit, QListWidget,
     QGroupBox, QTableWidget, QTableWidgetItem, QSplitter,
-    QFileDialog, QMessageBox, QProgressBar, QTextEdit, QScrollArea
+    QFileDialog, QMessageBox, QProgressBar, QTextEdit, QScrollArea,
+    QDialog
 )
 from PySide6.QtCore import Qt, QThread, Signal, QMimeData
 from PySide6.QtGui import QPixmap, QImage, QDragEnterEvent, QDropEvent
@@ -146,6 +147,86 @@ class ImagePreviewLabel(QLabel):
         self.setText(f"{self.title}\n(无图像)")
 
 
+class DifferentialAttackDialog(QDialog):
+    """差分攻击测试结果弹窗"""
+
+    def __init__(self, plaintext_data, key_data, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("差分攻击测试结果")
+        self.setMinimumSize(620, 340)
+        self._build_ui(plaintext_data, key_data)
+
+    def _build_ui(self, plaintext_data, key_data):
+        main_layout = QHBoxLayout(self)
+        main_layout.setSpacing(20)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+
+        # 左侧：明文敏感性
+        left_widget = QWidget()
+        left_layout = QVBoxLayout(left_widget)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+
+        left_title = QLabel("一、明文敏感性")
+        left_title.setStyleSheet("font-weight: bold; font-size: 14px;")
+        left_layout.addWidget(left_title)
+
+        plaintext_table = QTableWidget()
+        plaintext_table.setColumnCount(2)
+        plaintext_table.setHorizontalHeaderLabels(["指标", "值"])
+        plaintext_table.horizontalHeader().setStretchLastSection(True)
+        plaintext_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        plaintext_table.setRowCount(5)
+        rows = [
+            ("修改像素位置", str(plaintext_data.get('pixel_position', ''))),
+            ("原像素值", str(plaintext_data.get('original_value', ''))),
+            ("修改后像素值", str(plaintext_data.get('modified_value', ''))),
+            ("NPCR", f"{plaintext_data.get('npcr', 0):.4f}%"),
+            ("UACI", f"{plaintext_data.get('uaci', 0):.4f}%"),
+        ]
+        for i, (label, value) in enumerate(rows):
+            plaintext_table.setItem(i, 0, QTableWidgetItem(label))
+            plaintext_table.setItem(i, 1, QTableWidgetItem(value))
+        left_layout.addWidget(plaintext_table)
+
+        # 右侧：密钥敏感性
+        right_widget = QWidget()
+        right_layout = QVBoxLayout(right_widget)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+
+        right_title = QLabel("二、密钥敏感性")
+        right_title.setStyleSheet("font-weight: bold; font-size: 14px;")
+        right_layout.addWidget(right_title)
+
+        key_table = QTableWidget()
+        key_table.setColumnCount(2)
+        key_table.setHorizontalHeaderLabels(["指标", "值"])
+        key_table.horizontalHeader().setStretchLastSection(True)
+        key_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        key_table.setRowCount(5)
+        rows = [
+            ("原密钥", str(key_data.get('original_key', ''))),
+            ("修改后密钥", str(key_data.get('modified_key', ''))),
+            ("修改说明", key_data.get('modification_description', '')),
+            ("NPCR", f"{key_data.get('npcr', 0):.4f}%"),
+            ("UACI", f"{key_data.get('uaci', 0):.4f}%"),
+        ]
+        for i, (label, value) in enumerate(rows):
+            key_table.setItem(i, 0, QTableWidgetItem(label))
+            key_table.setItem(i, 1, QTableWidgetItem(value))
+        right_layout.addWidget(key_table)
+
+        main_layout.addWidget(left_widget, 1)
+        main_layout.addWidget(right_widget, 1)
+
+        # 关闭按钮
+        bottom_layout = QHBoxLayout()
+        bottom_layout.addStretch()
+        close_btn = QPushButton("关闭")
+        close_btn.clicked.connect(self.accept)
+        bottom_layout.addWidget(close_btn)
+        main_layout.addLayout(bottom_layout)
+
+
 class MainWindow(QMainWindow):
     """主窗口"""
     
@@ -273,6 +354,28 @@ class MainWindow(QMainWindow):
         self.run_btn.clicked.connect(self.run_evaluation)
         self.run_btn.setEnabled(False)
         layout.addWidget(self.run_btn)
+
+        # 差分攻击测试按钮
+        self.diff_attack_btn = QPushButton("差分攻击测试")
+        self.diff_attack_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #FF9800;
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
+                padding: 8px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #FB8C00;
+            }
+            QPushButton:disabled {
+                background-color: #cccccc;
+            }
+        """)
+        self.diff_attack_btn.clicked.connect(self.run_differential_attack_test)
+        self.diff_attack_btn.setEnabled(False)
+        layout.addWidget(self.diff_attack_btn)
         
         # 进度条
         self.progress_bar = QProgressBar()
@@ -487,6 +590,7 @@ class MainWindow(QMainWindow):
             len(self.key_input.text()) > 0
         )
         self.run_btn.setEnabled(can_run)
+        self.diff_attack_btn.setEnabled(can_run)
 
     
     def run_evaluation(self):
@@ -647,6 +751,36 @@ class MainWindow(QMainWindow):
             else:
                 self.report_text.append("  " * indent + f"{key}: {value}")
     
+    def run_differential_attack_test(self):
+        """执行差分攻击测试"""
+        if self.current_algorithm is None or self.current_image is None:
+            QMessageBox.warning(self, "警告", "请先选择算法和图像")
+            return
+
+        # 获取密钥
+        key_text = self.key_input.text()
+        try:
+            key = int(key_text)
+        except ValueError:
+            key = key_text
+
+        try:
+            diff_result = Evaluator.test_differential_attack(
+                self.current_algorithm.encrypt,
+                self.current_image,
+                key
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"差分攻击测试失败: {str(e)}")
+            return
+
+        dlg = DifferentialAttackDialog(
+            diff_result['plaintext_sensitivity'],
+            diff_result['key_sensitivity'],
+            self
+        )
+        dlg.exec()
+
     def show_histogram(self):
         """显示直方图"""
         if self.encrypted_image is None:

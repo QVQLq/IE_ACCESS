@@ -166,10 +166,15 @@ class BatchEvaluationThread(QThread):
             modified_image[0, 0] = np.uint8((int(modified_image[0, 0]) + 1) % 256)
         else:
             modified_image[0, 0, 0] = np.uint8((int(modified_image[0, 0, 0]) + 1) % 256)
-        
+
         encrypted_modified = self.algorithm.encrypt(modified_image, self.key)
         result['npcr'] = Evaluator.calculate_npcr(encrypted, encrypted_modified)
         result['uaci'] = Evaluator.calculate_uaci(encrypted, encrypted_modified)
+
+        # 差分攻击测试（明文敏感性 + 密钥敏感性）
+        result['differential_attack_test'] = Evaluator.test_differential_attack(
+            self.algorithm.encrypt, image_data, self.key
+        )
         
         # 解密质量
         result['perfect_recovery'] = np.array_equal(image_data, decrypted)
